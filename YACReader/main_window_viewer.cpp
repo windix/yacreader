@@ -170,10 +170,11 @@ void MainWindowViewer::setupUI()
     previousPos = pos();
     previousSize = size();
 
-    if (fullscreen)
-        toFullScreen();
-    if (conf.getMaximized())
-        showMaximized();
+    // if (fullscreen)
+    //     toFullScreen();
+
+    // if (conf.getMaximized())
+    //     showMaximized();
 
     setAcceptDrops(true);
 
@@ -1390,7 +1391,8 @@ void MainWindowViewer::closeEvent(QCloseEvent *event)
     Configuration &conf = Configuration::getConfiguration();
     if (!fullscreen && !isMaximized())
         conf.setGeometry(saveGeometry());
-    conf.setMaximized(isMaximized());
+
+    // conf.setMaximized(isMaximized());
 
     event->accept();
 }
