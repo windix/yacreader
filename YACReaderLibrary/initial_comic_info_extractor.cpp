@@ -32,6 +32,10 @@ void InitialComicInfoExtractor::extract()
         QLOG_WARN() << "Extracting cover: file not found " << _fileSource;
         return;
     }
+    if (fi.isDir()) {
+        extractFromFolder();
+        return;
+    }
 #ifndef NO_PDF
     if (fi.suffix().compare("pdf", Qt::CaseInsensitive) == 0) {
 #if defined Q_OS_MACOS && defined USE_PDFKIT
@@ -176,6 +180,56 @@ void InitialComicInfoExtractor::extract()
                 // p.load(":/images/notCover.png");
                 // p.save(_target);
             }
+        }
+    }
+}
+
+void InitialComicInfoExtractor::extractFromFolder()
+{
+    if (getXMLMetadata) {
+        QDir dir(_fileSource);
+        dir.setNameFilters({ QStringLiteral("ComicInfo.xml") });
+        const auto infoFiles = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+        if (!infoFiles.isEmpty()) {
+            QFile infoFile(infoFiles.first().absoluteFilePath());
+            if (infoFile.open(QIODevice::ReadOnly)) {
+                _xmlInfoData = infoFile.readAll();
+            }
+        }
+    }
+
+    if (_target == "None") {
+        return;
+    }
+
+    const auto pages = FolderComic::pageFiles(_fileSource);
+    _numPages = pages.size();
+
+    if (_numPages == 0) {
+        QLOG_WARN() << "Extracting cover: empty comic " << _fileSource;
+        _cover.load(":/images/notCover.png");
+        if (_target != "") {
+            _cover.save(_target);
+        }
+        return;
+    }
+
+    if (_coverPage > _numPages) {
+        _coverPage = 1;
+    }
+
+    QImage p;
+    if (p.load(pages.at(_coverPage - 1).absoluteFilePath())) {
+        _cover = p;
+        _coverSize = QPair<int, int>(p.width(), p.height());
+        _coverExtracted = true;
+        if (_target != "") {
+            saveCover(_target, p);
+        }
+    } else {
+        QLOG_WARN() << "Extracting cover: unable to load image from extracted cover " << _fileSource;
+        if (_target == "") {
+            _cover.load(":/images/notCover.png");
         }
     }
 }

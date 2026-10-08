@@ -32,6 +32,12 @@ Version counting is based on semantic versioning (Major.Feature.Patch)
 ### All GUI apps
 * Fix performance degradation on high-resolution screens. This has affected builds using Qt 6.5 or later. It's a deep change, so please let me know if you find any issues in the flow views or grid views.
 
+### YACReaderLibrary
+* Folders of images are added to libraries as comics, so they can be read from the mobile apps too. A folder with only images is a comic; images found next to other folders or comic files are added as one more comic named after their folder.
+
+### YACReaderLibraryServer
+* Folders of images are added to libraries as comics, so they can be read from the mobile apps too.
+
 ### All apps
 * Fix sorting when using Qt builds without ICU. This mostly affected Linux users.
 

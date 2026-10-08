@@ -159,6 +159,10 @@ public:
 
     bool load(const QString &path, int atPage = -1);
 
+    // The images that make the pages of a folder comic, in reading order.
+    static QFileInfoList pageFiles(const QString &path);
+    static bool hasPages(const QString &path);
+
 public slots:
 
     void process();
