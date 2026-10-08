@@ -720,9 +720,9 @@ bool FolderComic::load(const QString &path, int atPage)
     return true;
 }
 
-void FolderComic::process()
+QFileInfoList FolderComic::pageFiles(const QString &path)
 {
-    QDir d(_path);
+    QDir d(path);
 
     d.setNameFilters(getSupportedImageFormats());
     d.setFilter(QDir::Files | QDir::NoDotAndDotDot);
@@ -731,6 +731,22 @@ void FolderComic::process()
 
     // don't fix double page files sorting, because the user can see how the SO sorts the files in the folder.
     std::sort(list.begin(), list.end(), naturalSortLessThanCIFileInfo);
+
+    return list;
+}
+
+bool FolderComic::hasPages(const QString &path)
+{
+    QDir d(path);
+
+    d.setNameFilters(getSupportedImageFormats());
+
+    return !d.isEmpty(QDir::Files | QDir::NoDotAndDotDot);
+}
+
+void FolderComic::process()
+{
+    QFileInfoList list = pageFiles(_path);
 
     int nPages = list.size();
     _pages.clear();

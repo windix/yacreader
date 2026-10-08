@@ -1,9 +1,11 @@
 #include "comics_remover.h"
 
 #include "QsLog.h"
+#include "comic.h"
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 
 ComicsRemover::ComicsRemover(QModelIndexList &il, QList<QString> &ps, qulonglong parentId, QObject *parent)
     : QObject(parent), indexList(il), paths(ps), parentId(parentId)
@@ -21,7 +23,12 @@ void ComicsRemover::process()
     while (i.hasPrevious() && i2.hasPrevious()) {
         QModelIndex mi = i.previous();
         currentComicPath = i2.previous();
-        if (QFile::moveToTrash(currentComicPath))
+        if (QFileInfo(currentComicPath).isDir()) {
+            if (removeFolderComic(currentComicPath))
+                emit remove(mi.row());
+            else
+                emit removeError();
+        } else if (QFile::moveToTrash(currentComicPath))
             emit remove(mi.row());
         else if (QFile::remove(currentComicPath))
             emit remove(mi.row());
@@ -31,6 +38,24 @@ void ComicsRemover::process()
 
     emit finished();
     emit removedItemsFromFolder(parentId);
+}
+
+// A folder comic can share its folder with other folders and comic files, so only its
+// pages are removed, and the folder itself only once nothing is left in it.
+bool ComicsRemover::removeFolderComic(const QString &path)
+{
+    const auto pages = FolderComic::pageFiles(path);
+    bool removed = true;
+    for (const auto &page : pages) {
+        const auto pagePath = page.absoluteFilePath();
+        if (!QFile::moveToTrash(pagePath) && !QFile::remove(pagePath))
+            removed = false;
+    }
+
+    if (removed)
+        QDir().rmdir(path);
+
+    return removed;
 }
 
 FoldersRemover::FoldersRemover(QModelIndexList &il, QList<QString> &ps, QObject *parent)

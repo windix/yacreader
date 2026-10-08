@@ -23,6 +23,8 @@ private:
     QModelIndexList indexList;
     QList<QString> paths;
     qulonglong parentId;
+
+    static bool removeFolderComic(const QString &path);
 };
 
 class FoldersRemover : public QObject

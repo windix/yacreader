@@ -40,6 +40,12 @@ private:
     QString _databaseConnection;
     QList<Folder> _currentPathFolders; // lista de folders en el orden en el que están siendo explorados, el último es el folder actual
     // recursive method
+    struct DirectoryEntries {
+        QFileInfoList folders; // sub folders browsed as folders
+        QFileInfoList comics; // comic files and folders read as comics
+    };
+    static DirectoryEntries readDirectory(QDir dir, const QStringList &comicNameFilters);
+    QString relativePath(const QFileInfo &fileInfo) const;
     void create(QDir currentDirectory);
     void update(QDir currentDirectory);
     void run() override;

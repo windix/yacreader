@@ -172,7 +172,7 @@ QString existingComicPath(const QString &source, const QStringList &relativePath
     for (const auto &path : relativePaths) {
         const auto absolutePath = QDir::cleanPath(source + path);
         const QFileInfo fileInfo(absolutePath);
-        if (fileInfo.exists() && fileInfo.isFile()) {
+        if (fileInfo.exists() && (fileInfo.isFile() || fileInfo.isDir())) {
             relativePath = path;
             return absolutePath;
         }
@@ -528,9 +528,10 @@ void ComicInfoRepairer::run()
 #if !defined use_unarr && !defined use_libarchive
                 if (repairCase == RepairCase::InvalidPageCount || repairCase == RepairCase::MissingCover) {
 #ifndef NO_PDF
-                    const bool needs7zLibrary = QFileInfo(comicPath).suffix().compare("pdf", Qt::CaseInsensitive) != 0;
+                    const QFileInfo comicFileInfo(comicPath);
+                    const bool needs7zLibrary = !comicFileInfo.isDir() && comicFileInfo.suffix().compare("pdf", Qt::CaseInsensitive) != 0;
 #else
-                    const bool needs7zLibrary = true;
+                    const bool needs7zLibrary = !QFileInfo(comicPath).isDir();
 #endif
                     if (needs7zLibrary && !ensure7zLibraryLoaded()) {
                         repairSummary.error = sevenzLibrary->errorString();

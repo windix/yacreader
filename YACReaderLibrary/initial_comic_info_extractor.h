@@ -29,6 +29,7 @@ private:
     static bool crash;
     QByteArray _xmlInfoData;
     void saveCover(const QString &path, const QImage &cover);
+    void extractFromFolder();
 
 public slots:
     void extract();

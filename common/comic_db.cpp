@@ -199,7 +199,9 @@ ComicDB &ComicDB::operator=(const ComicDB &other)
 
 QString ComicDB::getFileName() const
 {
-    return QFileInfo(path).fileName();
+    // a folder comic made from the images at the root of the library has no name in its path
+    const auto fileName = QFileInfo(path).fileName();
+    return fileName.isEmpty() ? name : fileName;
 }
 
 QString ComicDB::getTitleOrFileName() const
